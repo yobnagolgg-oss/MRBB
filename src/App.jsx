@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 
 export default function App() {
   const items = [
@@ -30,8 +30,10 @@ export default function App() {
 
   const [cart, setCart] = useState([]);
   const [amountPaid, setAmountPaid] = useState(0);
+  const [darkMode, setDarkMode] = useState(false);
 
-  const audioRef = useRef(null);
+  const bg = darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black";
+  const card = darkMode ? "bg-gray-800 text-white" : "bg-white text-black";
 
   const playBeep = () => {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -87,61 +89,72 @@ export default function App() {
   const change = amountPaid - total;
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4 font-sans select-none">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className={`min-h-screen ${bg} p-3 transition`}>
 
-        {/* LEFT */}
-        <div className="lg:col-span-2 bg-white rounded-3xl shadow-xl p-6">
-          <h1 className="text-4xl font-bold mb-6 text-center">
-            Concession Stand Register
-          </h1>
+      {/* HEADER */}
+      <div className="flex justify-between items-center mb-3">
+        <h1 className="text-2xl font-bold">Concession POS</h1>
 
-          <div className="grid gap-5 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+        <button
+          onClick={() => setDarkMode(!darkMode)}
+          className="px-4 py-2 rounded-xl bg-indigo-500 text-white"
+        >
+          {darkMode ? "Light Mode" : "Dark Mode"}
+        </button>
+      </div>
+
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+        {/* ITEMS */}
+        <div className={`lg:col-span-2 ${card} rounded-2xl p-3 shadow-lg`}>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+
             {items.map((item) => (
               <button
                 key={item.name}
                 onClick={() => addItem(item)}
-                className="bg-blue-500 hover:bg-blue-600 active:scale-95 transition rounded-3xl text-white min-h-[180px] flex flex-col items-center justify-center gap-2 shadow-xl"
+                className="
+                  bg-gradient-to-br from-blue-500 to-indigo-600
+                  hover:scale-105 active:scale-95 transition
+                  text-white rounded-2xl
+                  p-4 min-h-[140px]
+                  flex flex-col justify-center items-center
+                  shadow-md
+                "
               >
-                <div className="text-5xl">{item.emoji}</div>
-                <div className="text-xl font-bold text-center">{item.name}</div>
-                <div>${item.price.toFixed(2)}</div>
+                <div className="text-4xl">{item.emoji}</div>
+                <div className="text-sm font-bold text-center">{item.name}</div>
+                <div className="text-xs opacity-90">${item.price.toFixed(2)}</div>
               </button>
             ))}
+
           </div>
         </div>
 
-        {/* RIGHT */}
-        <div className="bg-white rounded-3xl shadow-xl p-6 flex flex-col">
-
-          <h2 className="text-3xl font-bold mb-4 text-center">
-            Cash + Order
-          </h2>
+        {/* CART */}
+        <div className={`${card} rounded-2xl p-3 flex flex-col`}>
 
           {/* CASH BUTTONS */}
-          <div className="grid grid-cols-3 gap-2 mb-4">
+          <div className="grid grid-cols-3 gap-2 mb-3">
             {cashOptions.map((val) => (
               <button
                 key={val}
                 onClick={() => addCash(val)}
-                className="bg-green-500 hover:bg-green-600 text-white rounded-xl p-3 font-bold text-lg"
+                className="bg-green-500 text-white rounded-xl py-2 font-bold"
               >
                 +${val}
               </button>
             ))}
           </div>
 
-          <div className="text-center text-2xl font-bold mb-4">
+          <div className="text-center font-bold text-lg mb-2">
             Paid: ${amountPaid.toFixed(2)}
           </div>
 
-          {/* CART */}
-          <div className="flex-1 overflow-auto space-y-2 mb-4">
+          <div className="flex-1 overflow-auto space-y-2">
             {cart.map((item) => (
-              <div key={item.name} className="flex justify-between bg-gray-100 p-2 rounded-xl">
-                <div>
-                  {item.emoji} {item.name} x{item.qty}
-                </div>
+              <div key={item.name} className="flex justify-between text-sm">
+                <div>{item.emoji} {item.name} x{item.qty}</div>
                 <div>
                   ${(item.qty * item.price).toFixed(2)}
                   <button
@@ -155,20 +168,19 @@ export default function App() {
             ))}
           </div>
 
-          {/* TOTAL */}
-          <div className="border-t pt-3">
-            <div className="text-xl font-bold flex justify-between">
+          <div className="border-t mt-2 pt-2">
+            <div className="flex justify-between font-bold">
               <span>Total</span>
               <span>${total.toFixed(2)}</span>
             </div>
 
-            <div className="text-green-600 text-2xl font-bold mt-2 text-center">
+            <div className="text-green-500 text-xl font-bold text-center mt-2">
               Change: ${change >= 0 ? change.toFixed(2) : '0.00'}
             </div>
 
             <button
               onClick={clearOrder}
-              className="w-full mt-3 bg-black text-white p-3 rounded-xl"
+              className="w-full mt-2 bg-black text-white py-2 rounded-xl"
             >
               Clear
             </button>
