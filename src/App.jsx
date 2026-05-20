@@ -94,13 +94,30 @@ export default function App() {
             Concession Stand Register
           </h1>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="
+  grid gap-4
+  grid-cols-2
+  sm:grid-cols-3
+  lg:grid-cols-4
+  landscape:grid-cols-5
+  portrait:grid-cols-2
+">
             {customItems.map((item) => (
               <button
                 key={item.name}
                 onClick={() => addItem(item)}
-                className="bg-blue-500 hover:bg-blue-600 active:scale-95 transition rounded-2xl text-white p-6 shadow-lg"
-              >
+                
+          className="
+  bg-blue-500 hover:bg-blue-600 active:scale-95 transition
+  rounded-2xl text-white
+  min-h-[160px]
+  landscape:min-h-[120px]
+  flex flex-col items-center justify-center
+  gap-2
+  shadow-lg
+"
+                
+            
                 <div className="text-5xl mb-2">{item.emoji}</div>
                 <div className="text-2xl font-bold">{item.name}</div>
                 <div className="text-lg">${item.price.toFixed(2)}</div>
