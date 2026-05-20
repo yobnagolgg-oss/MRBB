@@ -13,6 +13,7 @@ export default function App() {
     { name: 'Gatorade', price: 3.0, emoji: '🥤' },
     { name: 'Giant Pickle', price: 1.0, emoji: '🥒' },
     { name: 'Hotdog', price: 2.5, emoji: '🌭' },
+    { name: 'Icee', price: 1.5, emoji: '🥤' },
     { name: 'Jesy’s Scoop', price: 4.0, emoji: '🍨' },
     { name: 'Jesy’s SpongeBob Bar', price: 4.0, emoji: '🧽' },
     { name: 'Nachos', price: 3.0, emoji: '🧀' },
@@ -57,9 +58,7 @@ export default function App() {
 
       if (existing) {
         return prev.map((i) =>
-          i.name === item.name
-            ? { ...i, qty: i.qty + 1 }
-            : i
+          i.name === item.name ? { ...i, qty: i.qty + 1 } : i
         );
       }
 
@@ -70,11 +69,7 @@ export default function App() {
   const removeItem = (name) => {
     setCart((prev) =>
       prev
-        .map((i) =>
-          i.name === name
-            ? { ...i, qty: i.qty - 1 }
-            : i
-        )
+        .map((i) => (i.name === name ? { ...i, qty: i.qty - 1 } : i))
         .filter((i) => i.qty > 0)
     );
   };
@@ -89,33 +84,21 @@ export default function App() {
     setAmountPaid(0);
   };
 
-  const total = cart.reduce(
-    (sum, item) => sum + item.price * item.qty,
-    0
-  );
-
+  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
   const change = amountPaid - total;
 
   return (
-    <div className={darkMode ? "app dark" : "app"}>
-
-      {/* HEADER */}
+    <div className={darkMode ? 'app dark' : 'app'}>
       <div className="header">
         <h1>Concession POS</h1>
 
-        <button
-          className="mode-btn"
-          onClick={() => setDarkMode(!darkMode)}
-        >
-          {darkMode ? "Light Mode" : "Dark Mode"}
+        <button className="mode-btn" onClick={() => setDarkMode(!darkMode)}>
+          {darkMode ? 'Light Mode' : 'Dark Mode'}
         </button>
       </div>
 
       <div className="layout">
-
-        {/* LEFT SIDE */}
         <div className="card">
-
           <div className="item-grid">
             {items.map((item) => (
               <button
@@ -123,27 +106,15 @@ export default function App() {
                 className="item-btn"
                 onClick={() => addItem(item)}
               >
-                <div className="item-emoji">
-                  {item.emoji}
-                </div>
-
-                <div className="item-name">
-                  {item.name}
-                </div>
-
-                <div className="item-price">
-                  ${item.price.toFixed(2)}
-                </div>
+                <div className="item-emoji">{item.emoji}</div>
+                <div className="item-name">{item.name}</div>
+                <div className="item-price">${item.price.toFixed(2)}</div>
               </button>
             ))}
           </div>
-
         </div>
 
-        {/* RIGHT SIDE */}
         <div className="card">
-
-          {/* CASH BUTTONS */}
           <div className="cash-grid">
             {cashOptions.map((val) => (
               <button
@@ -156,37 +127,20 @@ export default function App() {
             ))}
           </div>
 
-          {/* PAID */}
-          <div
-            style={{
-              textAlign: 'center',
-              marginTop: '16px',
-              fontSize: '24px',
-              fontWeight: 'bold'
-            }}
-          >
-            Paid: ${amountPaid.toFixed(2)}
-          </div>
+          <div className="paid-box">Paid: ${amountPaid.toFixed(2)}</div>
 
-          {/* CART */}
-          <div style={{ marginTop: '20px' }}>
+          <div className="cart-box">
             {cart.length === 0 ? (
-              <div style={{ textAlign: 'center', opacity: 0.7 }}>
-                No items added
-              </div>
+              <div className="empty-cart">No items added</div>
             ) : (
               cart.map((item) => (
-                <div
-                  key={item.name}
-                  className="cart-row"
-                >
+                <div key={item.name} className="cart-row">
                   <div>
                     {item.emoji} {item.name} x{item.qty}
                   </div>
 
                   <div>
                     ${(item.qty * item.price).toFixed(2)}
-
                     <button
                       className="remove-btn"
                       onClick={() => removeItem(item.name)}
@@ -199,47 +153,21 @@ export default function App() {
             )}
           </div>
 
-          {/* TOTAL */}
-          <div style={{ marginTop: '20px' }}>
-
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontSize: '24px',
-                fontWeight: 'bold'
-              }}
-            >
+          <div className="total-box">
+            <div className="total-row">
               <span>Total</span>
               <span>${total.toFixed(2)}</span>
             </div>
 
-            <div
-              style={{
-                textAlign: 'center',
-                fontSize: '30px',
-                fontWeight: 'bold',
-                color: '#22c55e',
-                marginTop: '10px'
-              }}
-            >
-              Change: $
-              {change >= 0
-                ? change.toFixed(2)
-                : '0.00'}
+            <div className="change-box">
+              Change: ${change >= 0 ? change.toFixed(2) : '0.00'}
             </div>
 
-            <button
-              className="clear-btn"
-              onClick={clearOrder}
-            >
+            <button className="clear-btn" onClick={clearOrder}>
               Clear Order
             </button>
-
           </div>
-
         </div>
-
       </div>
     </div>
   );
