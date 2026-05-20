@@ -1,3 +1,5 @@
+console.log("NEW DEPLOY TEST");
+
 import React, { useState } from 'react';
 
 export default function App() {
