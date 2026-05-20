@@ -32,7 +32,6 @@ export default function App() {
   const [newItemName, setNewItemName] = useState('');
   const [newItemPrice, setNewItemPrice] = useState('');
   const [newItemEmoji, setNewItemEmoji] = useState('🍔');
-
   const [customItems, setCustomItems] = useState(items);
 
   const addItem = (item) => {
@@ -86,44 +85,44 @@ export default function App() {
   const change = paid - total;
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6 font-sans">
+    <div className="min-h-screen bg-gray-100 p-4 font-sans select-none">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
 
+        {/* LEFT SIDE - MENU */}
         <div className="lg:col-span-2 bg-white rounded-3xl shadow-xl p-6">
           <h1 className="text-4xl font-bold mb-6 text-center">
             Concession Stand Register
           </h1>
 
           <div className="
-  grid gap-4
-  grid-cols-2
-  sm:grid-cols-3
-  lg:grid-cols-4
-  landscape:grid-cols-5
-  portrait:grid-cols-2
-">
-    {customItems.map((item) => (
-  <button
-    key={item.name}
-    onClick={() => addItem(item)}
-    className="
-      bg-blue-500 hover:bg-blue-600 active:scale-95 transition
-      rounded-2xl text-white
-      min-h-[160px]
-      landscape:min-h-[120px]
-      flex flex-col items-center justify-center
-      gap-2
-      shadow-lg
-    "
-  >
-    <div className="text-5xl mb-2">{item.emoji}</div>
-    <div className="text-2xl font-bold">{item.name}</div>
-    <div className="text-lg">${item.price.toFixed(2)}</div>
-  </button>
-))}
-          
+            grid gap-5
+            grid-cols-2
+            sm:grid-cols-3
+            lg:grid-cols-4
+            landscape:grid-cols-5
+          ">
+            {customItems.map((item) => (
+              <button
+                key={item.name}
+                onClick={() => addItem(item)}
+                className="
+                  bg-blue-500 hover:bg-blue-600 active:scale-95 transition
+                  rounded-3xl text-white
+                  min-h-[200px]
+                  landscape:min-h-[140px]
+                  flex flex-col items-center justify-center
+                  gap-2
+                  shadow-xl
+                "
+              >
+                <div className="text-6xl">{item.emoji}</div>
+                <div className="text-2xl font-bold text-center">{item.name}</div>
+                <div className="text-xl">${item.price.toFixed(2)}</div>
+              </button>
+            ))}
           </div>
 
+          {/* ADD ITEM */}
           <div className="mt-6">
             <button
               onClick={() => setShowAddItem(!showAddItem)}
@@ -169,6 +168,7 @@ export default function App() {
           </div>
         </div>
 
+        {/* RIGHT SIDE - CART */}
         <div className="bg-white rounded-3xl shadow-xl p-6 flex flex-col">
           <h2 className="text-3xl font-bold mb-4 text-center">
             Current Order
@@ -208,6 +208,7 @@ export default function App() {
             )}
           </div>
 
+          {/* TOTAL */}
           <div className="border-t pt-4 space-y-4">
             <div className="flex justify-between text-2xl font-bold">
               <span>Total</span>
@@ -239,9 +240,8 @@ export default function App() {
             </button>
           </div>
         </div>
+
       </div>
     </div>
   );
 }
-
-
