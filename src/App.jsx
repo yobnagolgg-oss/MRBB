@@ -1,6 +1,4 @@
-console.log("NEW DEPLOY TEST");
-
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 
 export default function App() {
   const items = [
@@ -28,15 +26,32 @@ export default function App() {
     { name: 'Cup of Cheese', price: 0.5, emoji: '🧀' },
   ];
 
+  const cashOptions = [1, 5, 10, 20, 50, 100];
+
   const [cart, setCart] = useState([]);
-  const [amountPaid, setAmountPaid] = useState('');
-  const [showAddItem, setShowAddItem] = useState(false);
-  const [newItemName, setNewItemName] = useState('');
-  const [newItemPrice, setNewItemPrice] = useState('');
-  const [newItemEmoji, setNewItemEmoji] = useState('🍔');
-  const [customItems, setCustomItems] = useState(items);
+  const [amountPaid, setAmountPaid] = useState(0);
+
+  const audioRef = useRef(null);
+
+  const playBeep = () => {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.value = 600;
+    gain.gain.value = 0.05;
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(ctx.currentTime + 0.08);
+  };
 
   const addItem = (item) => {
+    playBeep();
+
     setCart((prev) => {
       const existing = prev.find((i) => i.name === item.name);
 
@@ -50,199 +65,116 @@ export default function App() {
     });
   };
 
-  const removeItem = (itemName) => {
+  const removeItem = (name) => {
     setCart((prev) =>
       prev
-        .map((i) =>
-          i.name === itemName ? { ...i, qty: i.qty - 1 } : i
-        )
+        .map((i) => (i.name === name ? { ...i, qty: i.qty - 1 } : i))
         .filter((i) => i.qty > 0)
     );
   };
 
+  const addCash = (value) => {
+    playBeep();
+    setAmountPaid((prev) => prev + value);
+  };
+
   const clearOrder = () => {
     setCart([]);
-    setAmountPaid('');
+    setAmountPaid(0);
   };
 
-  const addCustomItem = () => {
-    if (!newItemName || !newItemPrice) return;
-
-    const newItem = {
-      name: newItemName,
-      price: parseFloat(newItemPrice),
-      emoji: newItemEmoji || '🍔',
-    };
-
-    setCustomItems((prev) => [...prev, newItem]);
-
-    setNewItemName('');
-    setNewItemPrice('');
-    setNewItemEmoji('🍔');
-    setShowAddItem(false);
-  };
-
-  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const paid = parseFloat(amountPaid) || 0;
-  const change = paid - total;
+  const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+  const change = amountPaid - total;
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 font-sans select-none">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {/* LEFT SIDE - MENU */}
+        {/* LEFT */}
         <div className="lg:col-span-2 bg-white rounded-3xl shadow-xl p-6">
           <h1 className="text-4xl font-bold mb-6 text-center">
             Concession Stand Register
           </h1>
 
-          <div className="
-            grid gap-5
-            grid-cols-2
-            sm:grid-cols-3
-            lg:grid-cols-4
-            landscape:grid-cols-5
-          ">
-            {customItems.map((item) => (
+          <div className="grid gap-5 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+            {items.map((item) => (
               <button
                 key={item.name}
                 onClick={() => addItem(item)}
-                className="
-                  bg-blue-500 hover:bg-blue-600 active:scale-95 transition
-                  rounded-3xl text-white
-                  min-h-[200px]
-                  landscape:min-h-[140px]
-                  flex flex-col items-center justify-center
-                  gap-2
-                  shadow-xl
-                "
+                className="bg-blue-500 hover:bg-blue-600 active:scale-95 transition rounded-3xl text-white min-h-[180px] flex flex-col items-center justify-center gap-2 shadow-xl"
               >
-                <div className="text-6xl">{item.emoji}</div>
-                <div className="text-2xl font-bold text-center">{item.name}</div>
-                <div className="text-xl">${item.price.toFixed(2)}</div>
+                <div className="text-5xl">{item.emoji}</div>
+                <div className="text-xl font-bold text-center">{item.name}</div>
+                <div>${item.price.toFixed(2)}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* RIGHT */}
+        <div className="bg-white rounded-3xl shadow-xl p-6 flex flex-col">
+
+          <h2 className="text-3xl font-bold mb-4 text-center">
+            Cash + Order
+          </h2>
+
+          {/* CASH BUTTONS */}
+          <div className="grid grid-cols-3 gap-2 mb-4">
+            {cashOptions.map((val) => (
+              <button
+                key={val}
+                onClick={() => addCash(val)}
+                className="bg-green-500 hover:bg-green-600 text-white rounded-xl p-3 font-bold text-lg"
+              >
+                +${val}
               </button>
             ))}
           </div>
 
-          {/* ADD ITEM */}
-          <div className="mt-6">
-            <button
-              onClick={() => setShowAddItem(!showAddItem)}
-              className="w-full bg-green-500 hover:bg-green-600 text-white rounded-2xl p-4 text-2xl font-bold shadow-lg"
-            >
-              + Add New Menu Item
-            </button>
-
-            {showAddItem && (
-              <div className="bg-gray-100 rounded-2xl p-4 mt-4 space-y-3 shadow-inner">
-                <input
-                  type="text"
-                  placeholder="Item Name"
-                  value={newItemName}
-                  onChange={(e) => setNewItemName(e.target.value)}
-                  className="w-full border rounded-xl p-3"
-                />
-
-                <input
-                  type="number"
-                  placeholder="Price"
-                  value={newItemPrice}
-                  onChange={(e) => setNewItemPrice(e.target.value)}
-                  className="w-full border rounded-xl p-3"
-                />
-
-                <input
-                  type="text"
-                  placeholder="Emoji"
-                  value={newItemEmoji}
-                  onChange={(e) => setNewItemEmoji(e.target.value)}
-                  className="w-full border rounded-xl p-3"
-                />
-
-                <button
-                  onClick={addCustomItem}
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-xl p-3 font-bold"
-                >
-                  Save Item
-                </button>
-              </div>
-            )}
+          <div className="text-center text-2xl font-bold mb-4">
+            Paid: ${amountPaid.toFixed(2)}
           </div>
-        </div>
 
-        {/* RIGHT SIDE - CART */}
-        <div className="bg-white rounded-3xl shadow-xl p-6 flex flex-col">
-          <h2 className="text-3xl font-bold mb-4 text-center">
-            Current Order
-          </h2>
-
-          <div className="flex-1 overflow-auto space-y-3 mb-4">
-            {cart.length === 0 ? (
-              <div className="text-gray-500 text-center mt-10">
-                No items added
-              </div>
-            ) : (
-              cart.map((item) => (
-                <div key={item.name} className="flex justify-between items-center bg-gray-100 rounded-xl p-3">
-                  <div>
-                    <div className="font-bold text-lg">
-                      {item.emoji} {item.name}
-                    </div>
-                    <div>
-                      {item.qty} × ${item.price.toFixed(2)}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <div className="font-bold text-lg">
-                      ${(item.qty * item.price).toFixed(2)}
-                    </div>
-
-                    <button
-                      onClick={() => removeItem(item.name)}
-                      className="bg-red-500 hover:bg-red-600 text-white rounded-lg px-3 py-1"
-                    >
-                      −
-                    </button>
-                  </div>
+          {/* CART */}
+          <div className="flex-1 overflow-auto space-y-2 mb-4">
+            {cart.map((item) => (
+              <div key={item.name} className="flex justify-between bg-gray-100 p-2 rounded-xl">
+                <div>
+                  {item.emoji} {item.name} x{item.qty}
                 </div>
-              ))
-            )}
+                <div>
+                  ${(item.qty * item.price).toFixed(2)}
+                  <button
+                    onClick={() => removeItem(item.name)}
+                    className="ml-2 text-red-500 font-bold"
+                  >
+                    −
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* TOTAL */}
-          <div className="border-t pt-4 space-y-4">
-            <div className="flex justify-between text-2xl font-bold">
+          <div className="border-t pt-3">
+            <div className="text-xl font-bold flex justify-between">
               <span>Total</span>
               <span>${total.toFixed(2)}</span>
             </div>
 
-            <div>
-              <label className="block font-semibold mb-1">Amount Paid</label>
-              <input
-                type="number"
-                value={amountPaid}
-                onChange={(e) => setAmountPaid(e.target.value)}
-                className="w-full border rounded-xl p-3 text-xl"
-              />
-            </div>
-
-            <div className="bg-green-100 rounded-2xl p-4 text-center">
-              <div className="text-lg font-semibold">Change Due</div>
-              <div className="text-4xl font-bold">
-                ${change >= 0 ? change.toFixed(2) : '0.00'}
-              </div>
+            <div className="text-green-600 text-2xl font-bold mt-2 text-center">
+              Change: ${change >= 0 ? change.toFixed(2) : '0.00'}
             </div>
 
             <button
               onClick={clearOrder}
-              className="w-full bg-black hover:bg-gray-800 text-white text-xl rounded-2xl p-4 font-bold"
+              className="w-full mt-3 bg-black text-white p-3 rounded-xl"
             >
-              Clear Order
+              Clear
             </button>
           </div>
-        </div>
 
+        </div>
       </div>
     </div>
   );
