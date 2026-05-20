@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './App.css';
 
 export default function App() {
   const items = [
@@ -30,10 +31,7 @@ export default function App() {
 
   const [cart, setCart] = useState([]);
   const [amountPaid, setAmountPaid] = useState(0);
-  const [darkMode, setDarkMode] = useState(false);
-
-  const bg = darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black";
-  const card = darkMode ? "bg-gray-800 text-white" : "bg-white text-black";
+  const [darkMode, setDarkMode] = useState(true);
 
   const playBeep = () => {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -59,7 +57,9 @@ export default function App() {
 
       if (existing) {
         return prev.map((i) =>
-          i.name === item.name ? { ...i, qty: i.qty + 1 } : i
+          i.name === item.name
+            ? { ...i, qty: i.qty + 1 }
+            : i
         );
       }
 
@@ -70,7 +70,11 @@ export default function App() {
   const removeItem = (name) => {
     setCart((prev) =>
       prev
-        .map((i) => (i.name === name ? { ...i, qty: i.qty - 1 } : i))
+        .map((i) =>
+          i.name === name
+            ? { ...i, qty: i.qty - 1 }
+            : i
+        )
         .filter((i) => i.qty > 0)
     );
   };
@@ -85,108 +89,157 @@ export default function App() {
     setAmountPaid(0);
   };
 
-  const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+  const total = cart.reduce(
+    (sum, item) => sum + item.price * item.qty,
+    0
+  );
+
   const change = amountPaid - total;
 
   return (
-    <div className={`min-h-screen ${bg} p-3 transition`}>
+    <div className={darkMode ? "app dark" : "app"}>
 
       {/* HEADER */}
-      <div className="flex justify-between items-center mb-3">
-        <h1 className="text-2xl font-bold">Concession POS</h1>
+      <div className="header">
+        <h1>Concession POS</h1>
 
         <button
+          className="mode-btn"
           onClick={() => setDarkMode(!darkMode)}
-          className="px-4 py-2 rounded-xl bg-indigo-500 text-white"
         >
           {darkMode ? "Light Mode" : "Dark Mode"}
         </button>
       </div>
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="layout">
 
-        {/* ITEMS */}
-        <div className={`lg:col-span-2 ${card} rounded-2xl p-3 shadow-lg`}>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        {/* LEFT SIDE */}
+        <div className="card">
 
+          <div className="item-grid">
             {items.map((item) => (
               <button
                 key={item.name}
+                className="item-btn"
                 onClick={() => addItem(item)}
-                className="
-                  bg-gradient-to-br from-blue-500 to-indigo-600
-                  hover:scale-105 active:scale-95 transition
-                  text-white rounded-2xl
-                  p-4 min-h-[140px]
-                  flex flex-col justify-center items-center
-                  shadow-md
-                "
               >
-                <div className="text-4xl">{item.emoji}</div>
-                <div className="text-sm font-bold text-center">{item.name}</div>
-                <div className="text-xs opacity-90">${item.price.toFixed(2)}</div>
+                <div className="item-emoji">
+                  {item.emoji}
+                </div>
+
+                <div className="item-name">
+                  {item.name}
+                </div>
+
+                <div className="item-price">
+                  ${item.price.toFixed(2)}
+                </div>
               </button>
             ))}
-
           </div>
+
         </div>
 
-        {/* CART */}
-        <div className={`${card} rounded-2xl p-3 flex flex-col`}>
+        {/* RIGHT SIDE */}
+        <div className="card">
 
           {/* CASH BUTTONS */}
-          <div className="grid grid-cols-3 gap-2 mb-3">
+          <div className="cash-grid">
             {cashOptions.map((val) => (
               <button
                 key={val}
+                className="cash-btn"
                 onClick={() => addCash(val)}
-                className="bg-green-500 text-white rounded-xl py-2 font-bold"
               >
                 +${val}
               </button>
             ))}
           </div>
 
-          <div className="text-center font-bold text-lg mb-2">
+          {/* PAID */}
+          <div
+            style={{
+              textAlign: 'center',
+              marginTop: '16px',
+              fontSize: '24px',
+              fontWeight: 'bold'
+            }}
+          >
             Paid: ${amountPaid.toFixed(2)}
           </div>
 
-          <div className="flex-1 overflow-auto space-y-2">
-            {cart.map((item) => (
-              <div key={item.name} className="flex justify-between text-sm">
-                <div>{item.emoji} {item.name} x{item.qty}</div>
-                <div>
-                  ${(item.qty * item.price).toFixed(2)}
-                  <button
-                    onClick={() => removeItem(item.name)}
-                    className="ml-2 text-red-500 font-bold"
-                  >
-                    −
-                  </button>
-                </div>
+          {/* CART */}
+          <div style={{ marginTop: '20px' }}>
+            {cart.length === 0 ? (
+              <div style={{ textAlign: 'center', opacity: 0.7 }}>
+                No items added
               </div>
-            ))}
+            ) : (
+              cart.map((item) => (
+                <div
+                  key={item.name}
+                  className="cart-row"
+                >
+                  <div>
+                    {item.emoji} {item.name} x{item.qty}
+                  </div>
+
+                  <div>
+                    ${(item.qty * item.price).toFixed(2)}
+
+                    <button
+                      className="remove-btn"
+                      onClick={() => removeItem(item.name)}
+                    >
+                      −
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
 
-          <div className="border-t mt-2 pt-2">
-            <div className="flex justify-between font-bold">
+          {/* TOTAL */}
+          <div style={{ marginTop: '20px' }}>
+
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: '24px',
+                fontWeight: 'bold'
+              }}
+            >
               <span>Total</span>
               <span>${total.toFixed(2)}</span>
             </div>
 
-            <div className="text-green-500 text-xl font-bold text-center mt-2">
-              Change: ${change >= 0 ? change.toFixed(2) : '0.00'}
+            <div
+              style={{
+                textAlign: 'center',
+                fontSize: '30px',
+                fontWeight: 'bold',
+                color: '#22c55e',
+                marginTop: '10px'
+              }}
+            >
+              Change: $
+              {change >= 0
+                ? change.toFixed(2)
+                : '0.00'}
             </div>
 
             <button
+              className="clear-btn"
               onClick={clearOrder}
-              className="w-full mt-2 bg-black text-white py-2 rounded-xl"
             >
-              Clear
+              Clear Order
             </button>
+
           </div>
 
         </div>
+
       </div>
     </div>
   );
